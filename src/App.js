@@ -7,13 +7,10 @@ import FaceRecognition from './components/faceRecognition/FaceRecognition'
 import Signin from './components/signin/Signin'
 import Register from './components/register/Register'
 import Particles from 'react-particles-js';
-import Clarifai from 'clarifai';
 import './App.css';
 import 'tachyons';
 
-const app = new Clarifai.App({
-  apiKey: '3c9ff967279b42138e1716361b163e85'
- });
+
 
 const particleOptions = {
   particles:{
@@ -26,17 +23,37 @@ const particleOptions = {
     }
   }
 }
-
-class App extends Component {
-    constructor(){
-      super();
-      this.state = {
+const initialState = {
         input: '',
         imageUrl: '',
         box: {},
         route: 'signin',
-        isSignin: false
-      }
+        isSignin: false,
+        user: {
+          id: '',
+          name: '',
+          email: '',
+          entries: '',
+          joined: ''
+  }
+}
+
+
+class App extends Component {
+    constructor(){
+      super();
+      this.state = initialState;
+     }
+    
+
+    loadUser = (data) => {
+      this.setState({user: {
+        id: data.id,
+        name: data.name,
+        email: data.email,
+        entries: data.entries,
+        joined: data.joined
+      }})
     }
 
     calculateFaceDetection = (data) => {
@@ -66,25 +83,45 @@ class App extends Component {
 
     onClickButton = () => {
       this.setState({ imageUrl: this.state.input });
-      app.models
-      .predict(Clarifai.FACE_DETECT_MODEL, this.state.input)
-      .then( response => {
-        //console.log(this.calculateFaceDetection(response));
-        this.displayFaceBox(this.calculateFaceDetection(response))
-      })
-      .catch(err => console.log(err))
-      
+      fetch('https://agile-shelf-91345.herokuapp.com/imageUrl', {
+            method: 'post',
+            headers: {'content-type': 'application/json'},
+            body: JSON.stringify({
+                input: this.state.input
+            })
+        })
+        .then(response => response.json())
+        .then(response => {
+          if(response) {
+            fetch('https://agile-shelf-91345.herokuapp.com/image', {
+              method: 'put',
+              headers: {'content-type': 'application/json'},
+              body: JSON.stringify({
+                  id: this.state.user.id
+              })
+          })
+            .then(response => response.json())
+            .then(count => {
+              this.setState(Object.assign(this.state.user, {entries: count}))
+            })
+  
+          }
+          //console.log(this.calculateFaceDetection(response));
+          this.displayFaceBox(this.calculateFaceDetection(response))
+        })
+        .catch(err => console.log(err))
+        
     }
 
     onRouteChange = (route) => {
 
       this.setState({route: route});
-      console.log(route);
+      //console.log(route);
       switch(route) {
         case 'home': 
         return this.setState({isSignin: true}); 
         case 'signout':
-        return this.setState({isSignin: false})
+        return this.setState(initialState)
 
         default :
           return this.setState({isSignin: false })
@@ -112,7 +149,7 @@ class App extends Component {
                   <div>
 
                   <Logo />
-                  <Rank />
+                  <Rank name={this.state.user.name} entries={this.state.user.entries} />
                   <ImageLinkForm
                   onInputChange = {this.onInputChange} 
                   onClickButton= {this.onClickButton}
@@ -121,8 +158,8 @@ class App extends Component {
       
                   </div> :
                   ( route === 'register' ?
-                    <Register onRouteChange = {this.onRouteChange} />:
-                    <Signin onRouteChange = {this.onRouteChange} /> 
+                    <Register loadUser = {this.loadUser} onRouteChange = {this.onRouteChange} />:
+                    <Signin loadUser = {this.loadUser} onRouteChange = {this.onRouteChange} /> 
                   )  
                     
                   }
