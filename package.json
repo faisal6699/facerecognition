@@ -2,7 +2,10 @@
   "name": "facerecognition",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://faisal6699.github.io/facerecognition/.",
+  "homepage": "https://faisal6699.github.io/smart-brain-6699/",
+  "engines": {
+    "node": "12.16.3"
+    },
   "dependencies": {
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.5.0",
