@@ -114,7 +114,7 @@ class App extends Component {
 
   onRouteChange = (route) => {
     this.setState({ route: route });
-    console.log(route);
+    //console.log(route);
     switch (route) {
       case "land":
         return this.setState({ isSignin: true });
@@ -135,7 +135,7 @@ class App extends Component {
     return (
       <div className="App">
         <Particles className="particles" params={particleOptions} />
-        <Navigation onRouteChange={this.onRouteChange} isSignin={isSignin} />
+        <Navigation onRouteChange={this.onRouteChange} isSignin={isSignin} route={route} />
         {route === "face" ? (
           <div>
             <Logo />

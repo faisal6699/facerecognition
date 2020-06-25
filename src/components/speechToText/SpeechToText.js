@@ -90,7 +90,7 @@ class SpeechToText extends React.Component {
   }
 
   refreshText(){
-    console.log('refresh')
+    //console.log('refresh')
     document.getElementById("final").innerHTML = '';
   }
 
